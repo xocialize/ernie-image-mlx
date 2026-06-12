@@ -97,3 +97,22 @@ All gates green, same session as P0-P2:
 REMAINING (P4): engine textToImage package (second backer — PackageID
 selection shipped) → 4-bit quantization (~6.5 GB target, the lower-tier
 headline) → APP-VALIDATION handoff → publication.
+
+## P4 — COMPLETE (2026-06-12)
+
+MLXErnieImage → ErnieImagePackage (PackageID "ernie-image-turbo", the second
+textToImage backer). Engine-routed smoke: lighthouse 18.1 s @1024², eye-verified.
+4-bit variant shipped (`quantizedPath`): repos at ERNIE-Image-Turbo-4bit/ (6.8 GB
+disk), **resident 7.4 GB; peak 15.0 GB @1024² (24 s) / 9.4 GB @512² (5.2 s)**;
+quality ≈ bf16 (keep-hi on modulation/time/final/patch glue).
+
+**Memory find:** the 1024² peak is the Flux2VAE decode CONV SCRATCH (single-op
+working set — checkpoint granularity has zero effect; the DiT loop peaks 8.5 GB
+incl. weights). bf16 decode (= the reference's internal regime) 23→17.5 GB;
+per-stage evals → 15 GB. **Tiled VAE decode** is the tracked fix to bring 1024²
+to the 16 GB tier (benefits Lens too).
+
+REMAINING: tiled decode · full-ERNIE (weights swap + CFG path) · optional PE
+pre-step (llm capability; Ministral-3B ships in the release) · HF auto-download ·
+publication (xocialize/ernie-image-swift; weights Apache-2.0 → mlx-community
+candidate for the 4-bit conversion).
