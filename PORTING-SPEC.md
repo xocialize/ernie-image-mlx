@@ -79,3 +79,21 @@ plain tokenizer add_special_tokens — capture true SDPA inputs per pitfall #26
 before assuming positions) → S4 VAE gate (Lens Flux2VAE vs vae_decode golden —
 verify bn eps 1e-5 vs Lens's 1e-4 reading) → S5 e2e render → P4 engine package
 (textToImage second backer via PackageID) + 4-bit quant.
+
+## P3 — COMPLETE (2026-06-12, ernie-image-swift)
+
+All gates green, same session as P0-P2:
+- S1 scheduler: exact vs PT dump (static shift 4.0)
+- S2 DiT step-0: fp32-CPU 0.9999996 (bf16 0.992 = noise; gate 0.99)
+- S3 encoder: ids exact · YaRN inv_freq exact vs dump · hidden[-2] 0.9999969 bf16
+  TWO pitfall-#26 finds: (a) rope is YARN (factor 16, theta 1e6) under
+  rope_parameters — mflux main reads plain rope (upstream-flag candidate);
+  (b) hidden_states[-2] = AFTER 25 LAYERS (HF appends pre-layer; layer 26 +
+  final norm are dead weight for the encoder use).
+- S4 VAE: Lens Flux2VAE + decodePackedLatents REUSED VERBATIM — 64.0 dB.
+- S5 e2e: ~/Desktop/ernie-swift-demo.png — **19.5 s @1024²/8 steps bf16**
+  (Python MLX 33.4 s; Lens Swift 73 s; Qwen-Edit 800 s).
+
+REMAINING (P4): engine textToImage package (second backer — PackageID
+selection shipped) → 4-bit quantization (~6.5 GB target, the lower-tier
+headline) → APP-VALIDATION handoff → publication.
