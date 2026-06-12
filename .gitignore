@@ -1,0 +1,4 @@
+.venv/
+mflux-main/
+outputs/
+__pycache__/
