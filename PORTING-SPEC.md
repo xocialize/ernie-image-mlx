@@ -55,3 +55,27 @@ high-contrast house style. **Load 4.0 s · generate 33.4 s** bf16 on M5 Max
 no --model-path; the ErnieImage class takes model_path directly).
 NEXT (P2): PT goldens — newer-diffusers venv for ErnieImagePipeline; oracle
 protocol incl. true-SDPA-input capture on the encoder (second-to-last layer!).
+
+## P2 — COMPLETE (2026-06-12)
+
+Goldens at `VideoResearch/ernie-image-models/goldens/`: encoder (ids + second-
+to-last AND last hidden) · latents (seed-42 packed noise) · scheduler (resolved
+sigmas/timesteps — static shift 4.0: sigma' = 4s/(1+3s)) · dit_step0 (single
+branch + padded text/lens) · vae_decode (bn stats eps 1e-5, denorm/unpatch/
+decoded) + goldens_meta.json. Stage B: ref_turbo_bf16_mps.png (PT bf16 MPS,
+PE-off — same fox/sunset family as the MLX P1 render; both prompt-faithful).
+**model_index find:** the Prompt Enhancer SHIPS in the open release (pe/ =
+Ministral3ForCausalLM 7.2 GB + pe_tokenizer chat template) — optional pre-step,
+excluded from goldens and from the package footprint.
+
+## P3 — IN PROGRESS (ernie-image-swift @ ~/Development/MLXEngine)
+
+S1 scheduler: PASSED exact vs the PT dump. Package depends on lens-mlx-swift
+for Flux2VAE. NEXT: S2 DiT (single-stream; port from diffusers
+transformer_ernie_image.py + mflux ernie_transformer/, gate vs dit_step0 —
+note text_bth/text_lens padding + timestep = sigma*1000) → S3 encoder
+(Mistral3Model text_config 26L/3072/GQA32-8/ffn 9216, hidden_states[-2],
+plain tokenizer add_special_tokens — capture true SDPA inputs per pitfall #26
+before assuming positions) → S4 VAE gate (Lens Flux2VAE vs vae_decode golden —
+verify bn eps 1e-5 vs Lens's 1e-4 reading) → S5 e2e render → P4 engine package
+(textToImage second backer via PackageID) + 4-bit quant.
