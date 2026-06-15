@@ -1,10 +1,5 @@
 # ernie-image-mlx
 
-> **Proposed README** — this repository currently has **no `README.md`** and
-> **no git remote** (local-only; not on GitHub). Drafted from `PORTING-SPEC.md`
-> and the code. The companion Swift port `ernie-image-swift` is the publication
-> target (planned `xocialize/ernie-image-swift`).
-
 Apple MLX porting workbench for **ERNIE-Image-Turbo** (baidu, Apache-2.0) — a
 lightweight `textToImage` model for MLXEngine's lower-tier clients. This repo is
 the **Python sanity + golden-capture oracle**; the parity-locked production port
